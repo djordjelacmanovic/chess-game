@@ -3,8 +3,13 @@ let app = express();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
 let path = require('path');
+
 let redis = require('redis');
 let client = redis.createClient();
+
+client.on("error", function (err) {
+    console.log("Error " + err);
+});
 
 let Board = require('./models/board');
 let Position = require('./models/position');
