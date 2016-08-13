@@ -26,8 +26,8 @@ module.exports = {
                 yield position;
         }
     },
-    possibleMoves: function* (piece, board) {
-        for(let pos of this.movable(piece, board)){
+    possibleMoves: function*(piece, board) {
+        for (let pos of this.movable(piece, board)) {
             yield pos;
         }
     }

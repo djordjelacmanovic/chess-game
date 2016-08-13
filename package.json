@@ -1,13 +1,16 @@
 {
   "name": "djordje-chess-game",
   "version": "1.0.0",
+  "engines": {
+    "node" : "6.3.0"
+  },
   "description": "A chess game using Strategy pattern",
   "main": "server.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "nf start",
     "test": "node node_modules/mocha/bin/mocha --recursive"
   },
   "author": "Djordje Lacmanovic <djordje.lacmanovic@gmail.com> (http://djordjelacmanovic.github.io)",
