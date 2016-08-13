@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>Chess Game by Djordje</title>
     <link rel="stylesheet" href="css/chessboard-0.3.0.min.css"/>
+    <style>
+        .in-check{
+            background: #cc0000;
+        }
+    </style>
 </head>
 <body>
 <div id="board" style="width: 600px"></div>
@@ -23,6 +28,19 @@
         window.socket.on('move', function (move) {
             window.board.move(move);
         });
+
+        window.socket.on('checkmate', function (color) {
+           alert(color + ' defeated.');
+        });
+
+        window.socket.on('check', function (square) {
+            getSquareElement(square).addClass('in-check');
+        });
+
+        window.socket.on('uncheck', function (square) {
+            getSquareElement(square).removeClass('in-check');
+        });
+
         window.board = new ChessBoard('board', {
             onMouseoverSquare: mouseOverSquare,
             onMouseoutSquare: function () {
@@ -39,12 +57,16 @@
         bindClickListeners();
     }
 
+    function getSquareElement(square) {
+        return $('#board').find('.square-' + square);
+    }
+
     function removeGreySquares() {
         $('#board').find('.square-55d63').css('background', '').removeClass('selected');
     }
 
     function greySquare(square) {
-        var squareEl = $('#board').find('.square-' + square);
+        var squareEl = getSquareElement(square);
 
         var background = '#a9a9a9';
         if (squareEl.hasClass('black-3c85d') === true) {

@@ -22,9 +22,7 @@ var boardPieces = board.boardMatrix.map(function (row) {
         if (!piece)
             return;
         let {position, name, color} = piece;
-        return {
-            position, name, color
-        }
+        return {position, name, color};
     });
 });
 
@@ -59,8 +57,30 @@ io.on('connection', function (socket) {
 
     socket.on('move', function (move) {
         let {start, end} = Notation.moveNotationToPositions(move);
+        let toMove = board.toMove;
+
+        let isChecked = board.isInCheck();
+        let kingPosition = board.findKing(toMove).position.getNotation();
         board.move(start, end);
         socket.broadcast.emit('move', move);
+
+        if(board.isCheckMate()){
+            socket.broadcast.emit('checkmate', board.toMove);
+            return socket.emit('checkmate', board.toMove);
+        }
+
+        if(isChecked){
+            if(!board.isInCheck(toMove)){
+                socket.broadcast.emit('uncheck', kingPosition);
+                socket.emit('uncheck', kingPosition);
+            }
+        }
+
+        if(board.isInCheck()){
+            let kingPosition = board.findKing(board.toMove).position.getNotation();
+            socket.broadcast.emit('check', kingPosition);
+            socket.emit('check', kingPosition);
+        }
     });
 
     socket.on('disconnect', function () {

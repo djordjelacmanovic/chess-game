@@ -3,6 +3,7 @@ let Piece = require('./piece');
 
 class Board {
     constructor() {
+        this.toMove = 'white';
         this.boardMatrix = [];
         for (var j = 1; j <= 8; j++) {
             this.boardMatrix[j] = [];
@@ -72,10 +73,13 @@ class Board {
                 this.removePiece(end);
                 this.removePiece(start);
                 this.addPiece(end, new Piece(piece.name, piece.color));
+                this.toggleMove();
             }
         }
     }
-
+    toggleMove(){
+        this.toMove = this.toMove === 'white' ? 'black' : 'white';
+    }
     removePiece(position) {
         if (position.outOfBounds()) {
             throw 'Out of bounds';
@@ -108,6 +112,39 @@ class Board {
             }
         }
         return false;
+    }
+
+    findKing(color){
+        for(var j = 1; j <= 8; j++){
+            for(var i = 1; i <= 8; i++){
+                let piece = this.boardMatrix[j][i];
+                if(piece && piece.name === 'king' && piece.color === color){
+                    return piece;
+                }
+            }
+        }
+    }
+
+    getPiecesOfColor(color){
+        let col = color || this.toMove;
+        let pieces = [];
+        for(var j = 1; j <=8; j++){
+            pieces.concat(this.boardMatrix[j].filter(piece => piece && piece.color === col));
+        }
+        return pieces;
+    }
+
+    isInCheck(color){
+        let col = color || this.toMove;
+        let king = this.findKing(col);
+        return this.isFieldAttacked(king.position, col  === 'white' ? 'black' : 'white');
+    }
+
+    isCheckMate(color){
+        let col = color || this.toMove;
+        let king = this.findKing(col);
+        return this.isFieldAttacked(king.position, col  === 'white' ? 'black' : 'white')
+            && this.getPiecesOfColor(col).filter(piece => piece && piece.possibleMoves().length > 0).length === 0;
     }
 }
 
