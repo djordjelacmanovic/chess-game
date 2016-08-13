@@ -15,11 +15,9 @@
   },
   "author": "Djordje Lacmanovic <djordje.lacmanovic@gmail.com> (http://djordjelacmanovic.github.io)",
   "license": "ISC",
-  "devDependencies": {
-    "mocha": "3.0.2",
-    "should": "10.0.0"
-  },
   "dependencies": {
+    "mocha": "3.0.2",
+    "should": "10.0.0",
     "express": "4.14.0",
     "redis": "2.6.2",
     "socket.io": "1.4.8"
