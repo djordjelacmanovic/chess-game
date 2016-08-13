@@ -29,3 +29,5 @@ build/Release
 /.idea
 
 node_modules
+
+.env
