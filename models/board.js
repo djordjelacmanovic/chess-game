@@ -127,9 +127,9 @@ class Board {
 
     getPiecesOfColor(color){
         let col = color || this.toMove;
-        let pieces = [];
+        var pieces = [];
         for(var j = 1; j <=8; j++){
-            pieces.concat(this.boardMatrix[j].filter(piece => piece && piece.color === col));
+            pieces = pieces.concat(this.boardMatrix[j].filter(piece => piece && piece.color === col));
         }
         return pieces;
     }
