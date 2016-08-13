@@ -94,6 +94,12 @@
             var sq = el.data('square');
             var piece = el.find('img').data('piece');
             if (window.selectedPiece) {
+                if(sq === window.selectedPiece){
+                    window.selectedPiece = null;
+                    el.css('background', '');
+                    greySquare(sq);
+                    return;
+                }
                 if (!el.hasClass('selected'))
                     return;
                 var move = window.selectedPiece + '-' + sq;

@@ -1,4 +1,4 @@
-let behaviourResolver = require('./behaviour-resolver');
+let behaviourResolver = require('./behaviours/index');
 
 class Piece {
     constructor(name, color, position, board) {
