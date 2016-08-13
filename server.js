@@ -35,16 +35,30 @@ app.all('/*', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-    console.log('a user connected');
+
+    client.srandmember('users_waiting', function (err, result) {
+        if(err)
+            return console.log(err);
+        console.log(result);
+        if(!result){
+            console.log('No users waiting at the moment');
+            return client.sadd('users_waiting', socket.id, function (err, result) {
+                if(err)
+                    return console.log(err);
+                console.log(result);
+            });
+        }
+        console.log('Paired ' +socket.id + ' with ' + result);
+        socket.emit('paired', 'black');
+        io.to(result).emit('paired','white');
+    });
 
     socket.on('piece exists', function (square) {
-        console.log(square);
         let piece = board.getPiece(Notation.notationToPosition(square));
         socket.emit('piece exists ' + square, piece != null);
     });
 
     socket.on('allowed moves', function (square) {
-        console.log(square);
         let piece = board.getPiece(Notation.notationToPosition(square));
         var allowedMoves = [];
         if (piece) {
@@ -85,6 +99,12 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function () {
         board = new Board();
+        console.log('Removing '+socket.id);
+        client.srem('users_waiting', socket.id, function (err, res) {
+            if(err)
+                return console.log(err);
+            console.log(res);
+        });
     });
 });
 

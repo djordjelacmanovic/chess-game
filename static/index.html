@@ -27,6 +27,7 @@
 
         window.socket.on('move', function (move) {
             window.board.move(move);
+            toggleMove();
         });
 
         window.socket.on('checkmate', function (color) {
@@ -39,6 +40,11 @@
 
         window.socket.on('uncheck', function (square) {
             getSquareElement(square).removeClass('in-check');
+        });
+
+        window.socket.on('paired', function (color) {
+           window.board.orientation(color);
+            bindClickListeners();
         });
 
         window.board = new ChessBoard('board', {
@@ -85,8 +91,8 @@
         if (!piece)
             return;
 
-        if(piece.search(
-                        window.toMove == 'white'
+        if(!isTurn()
+                || piece.search(window.toMove === 'white'
                                 ? /^w/
                                 : /^b/
                 ) === -1){
@@ -131,12 +137,17 @@
                 socket.emit('move', move);
                 return removeGreySquares();
             }
-            if(piece.search(window.toMove === 'white' ? /^w/ : /^b/) === -1)
+
+            if( !isTurn() || piece.search(window.toMove === 'white' ? /^w/ : /^b/) === -1)
                 return;
             window.selectedPiece = sq;
             console.log(window.selectedPiece);
             el.css('background', '#cc0000');
         });
+    }
+
+    function isTurn() {
+        return window.toMove === window.board.orientation();
     }
 
     function toggleMove() {
