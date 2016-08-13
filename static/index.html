@@ -13,19 +13,37 @@
 <script type="text/javascript" src="js/chessboard-0.3.0.min.js"></script>
 <script type="text/javascript">
 
-    var socket = io({transports: ['websocket']});
+    function init() {
+        window.socket = io({transports: ['websocket']});
 
-    socket.on('message', function (message) {
-        console.log(message);
-    });
+        window.socket.on('message', function (message) {
+            console.log(message);
+        });
 
-    window.selectedPiece = null;
+        window.socket.on('move', function (move) {
+            window.board.move(move);
+        });
+        window.board = new ChessBoard('board', {
+            onMouseoverSquare: mouseOverSquare,
+            onMouseoutSquare: function () {
+                if (window.selectedPiece)
+                    return;
+                removeGreySquares();
+            }
+        });
 
-    var removeGreySquares = function removeGreySquares() {
+        window.selectedPiece = null;
+        window.toMove = 'white';
+
+        window.board.start();
+        bindClickListeners();
+    }
+
+    function removeGreySquares() {
         $('#board').find('.square-55d63').css('background', '').removeClass('selected');
-    };
+    }
 
-    var greySquare = function (square) {
+    function greySquare(square) {
         var squareEl = $('#board').find('.square-' + square);
 
         var background = '#a9a9a9';
@@ -35,62 +53,70 @@
 
         squareEl.css('background', background);
         squareEl.addClass('selected');
-    };
+    }
 
-    var board = new ChessBoard('board', {
-        onMouseoverSquare: function (square, piece) {
-            if (window.selectedPiece)
-                return;
-            removeGreySquares();
+    function mouseOverSquare(square, piece) {
+        if (window.selectedPiece)
+            return;
+        removeGreySquares();
 
-            if (!piece)
-                return;
+        if (!piece)
+            return;
 
-            socket.on('piece exists ' + square, function (exists) {
-                if (exists) {
-                    greySquare(square);
-                    socket.on('allowed moves ' + square, function (moves) {
-                        moves.forEach(function (sq) {
-                            greySquare(sq);
-                        });
+        if(piece.search(
+                        window.toMove == 'white'
+                                ? /^w/
+                                : /^b/
+                ) === -1){
+            return;
+        }
+
+        window.socket.on('piece exists ' + square, function (exists) {
+            if (exists) {
+                greySquare(square);
+                window.socket.on('allowed moves ' + square, function (moves) {
+                    moves.forEach(function (sq) {
+                        greySquare(sq);
                     });
+                });
 
-                    socket.emit('allowed moves', square);
-                }
-            });
+                window.socket.emit('allowed moves', square);
+            }
+        });
 
-            socket.emit('piece exists', square);
+        window.socket.emit('piece exists', square);
 
-        },
-        onMouseutSquare: function () {
-            if (window.selectedPiece)
+    }
+
+    function bindClickListeners() {
+        $('.square-55d63').click(function () {
+            var el = jQuery(this);
+            var sq = el.data('square');
+            var piece = el.find('img').data('piece');
+            if (window.selectedPiece) {
+                if (!el.hasClass('selected'))
+                    return;
+                var move = window.selectedPiece + '-' + sq;
+                window.board.move(move);
+                window.selectedPiece = null;
+                toggleMove();
+                socket.emit('move', move);
+                return removeGreySquares();
+            }
+            if(piece.search(window.toMove === 'white' ? /^w/ : /^b/) === -1)
                 return;
-            removeGreySquares();
-        }
-    });
+            window.selectedPiece = sq;
+            console.log(window.selectedPiece);
+            el.css('background', '#cc0000');
+        });
+    }
 
-    board.start();
+    function toggleMove() {
+        window.toMove = window.toMove === 'white' ? 'black' : 'white';
+    }
 
-    socket.on('move', function (move) {
-        board.move(move);
-    });
+    init();
 
-    $('.square-55d63').click(function () {
-        var el = jQuery(this);
-        var sq = el.data('square');
-        if (selectedPiece) {
-            if (!el.hasClass('selected'))
-                return;
-            var move = selectedPiece + '-' + sq;
-            board.move(move);
-            window.selectedPiece = null;
-            socket.emit('move', move);
-            return removeGreySquares();
-        }
-        window.selectedPiece = sq;
-        console.log(selectedPiece);
-        el.css('background', '#cc0000');
-    })
 </script>
 </body>
 </html>
