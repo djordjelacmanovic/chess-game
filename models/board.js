@@ -41,7 +41,6 @@ class Board {
         this.addPiece(new Position(5,8), new Piece('king', 'black'));
         this.addPiece(new Position(5,1), new Piece('king', 'white'));
 
-        console.log(this.boardMatrix);
     }
   addPiece(position, piece) {
     if(position.outOfBounds())
@@ -61,6 +60,18 @@ class Board {
       let {y,x} = position;
       return this.boardMatrix[y][x];
     }
+  }
+  move(start,end){
+      let piece = this.getPiece(start);
+      console.log(piece);
+      let piece2 = this.getPiece(end);
+      if(piece){
+         if(!piece2 || piece2.color !== piece.color ) {
+             this.removePiece(end);
+             this.removePiece(start);
+             this.addPiece(end, new Piece(piece.name, piece.color));
+         }
+      }
   }
   removePiece(position){
       if(position.outOfBounds()){

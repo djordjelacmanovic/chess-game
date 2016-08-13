@@ -68,15 +68,17 @@ io.on('connection', function(socket){
 
     socket.on('move', function (move) {
         let {start, end} = moveToPositions(move);
-        let piece = board.getPiece(start);
-        board.addPiece(end, piece);
-        board.removePiece(start);
+        board.move(start, end);
         socket.broadcast.emit('move', move);
-    })
+    });
+
+    socket.on('disconnect', function () {
+       board = new Board();
+    });
 });
 
 http.listen(80, function () {
-    console.log('Express and Socket.io running at localhost:80');
+    console.log('Express and Socket.io running at http://localhost:80');
 });
 
 function squareToIndexes(square) {

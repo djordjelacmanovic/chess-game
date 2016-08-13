@@ -22,7 +22,7 @@
     window.selectedPiece = null;
 
     var removeGreySquares = function removeGreySquares() {
-        $('#board').find('.square-55d63').css('background', '');
+        $('#board').find('.square-55d63').css('background', '').removeClass('selected');
     };
 
     var greySquare = function(square) {
@@ -34,6 +34,7 @@
         }
 
         squareEl.css('background', background);
+        squareEl.addClass('selected');
     };
 
     var board = new ChessBoard('board',{
@@ -78,6 +79,8 @@
         var el = jQuery(this);
         var sq = el.data('square');
         if(selectedPiece){
+            if(!el.hasClass('selected'))
+                return;
             var move = selectedPiece+'-'+sq;
             board.move(move);
             window.selectedPiece = null;
