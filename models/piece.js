@@ -9,7 +9,7 @@ class Piece {
         this.strategy = behaviourResolver(this.name)
     }
 
-    possibleMoves() {
+    legalMoves() {
         var moves = [];
         for (let pos of this.strategy.possibleMoves(this, this.board)) {
             let pieceCopy = this.board.getPiece(pos);

@@ -11,7 +11,6 @@ class Board {
                 this.boardMatrix[j][i] = null;
             }
         }
-        this.initBoard();
     }
 
     initBoard() {
@@ -42,6 +41,7 @@ class Board {
         this.addPiece(new Position(5, 8), new Piece('king', 'black'));
         this.addPiece(new Position(5, 1), new Piece('king', 'white'));
 
+        return this;
     }
 
     addPiece(position, piece) {
@@ -144,7 +144,32 @@ class Board {
         let col = color || this.toMove;
         let king = this.findKing(col);
         return this.isFieldAttacked(king.position, col  === 'white' ? 'black' : 'white')
-            && this.getPiecesOfColor(col).filter(piece => piece && piece.possibleMoves().length > 0).length === 0;
+            && this.getPiecesOfColor(col).filter(piece => piece && piece.legalMoves().length > 0).length === 0;
+    }
+
+    toJson(){
+        return JSON.stringify({
+            boardState : this.boardMatrix.map(function (row) {
+                return row.map(piece => {
+                    if (!piece)
+                        return null;
+                    let {position, name, color} = piece;
+                    return {position, name, color};
+                });
+            }),
+            toMove : this.toMove
+        });
+    }
+    static fromJson(json){
+        let obj = JSON.parse(json);
+        let board = new Board();
+        board.toMove = obj.toMove;
+        for(let row of obj.boardState.filter(row => row)){
+            for(let piece of row.filter(piece => piece)){
+                board.addPiece(new Position(piece.position.x, piece.position.y), new Piece(piece.name, piece.color));
+            }
+        }
+        return board;
     }
 }
 
