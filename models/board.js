@@ -115,10 +115,11 @@ class Board {
     }
 
     findKing(color){
+        let col = color || this.toMove;
         for(var j = 1; j <= 8; j++){
             for(var i = 1; i <= 8; i++){
                 let piece = this.boardMatrix[j][i];
-                if(piece && piece.name === 'king' && piece.color === color){
+                if(piece && piece.name === 'king' && piece.color === col){
                     return piece;
                 }
             }

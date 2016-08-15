@@ -11,7 +11,8 @@
   },
   "scripts": {
     "start": "nf start",
-    "test": "node node_modules/mocha/bin/mocha --recursive"
+    "test": "node node_modules/mocha/bin/mocha --recursive",
+    "continous-testing" : "node node_modules/mocha/bin/mocha --recursive --watch"
   },
   "author": "Djordje Lacmanovic <djordje.lacmanovic@gmail.com> (http://djordjelacmanovic.github.io)",
   "license": "ISC",

@@ -116,7 +116,7 @@ function registerNewPlayer(socket) {
     client.srandmember('users_waiting', function (err, result) {
         if(err)
             return console.log(err);
-        console.log(result);
+
         if(!result){
             console.log('No users waiting at the moment');
             return client.sadd('users_waiting', socket.id, function (err) {

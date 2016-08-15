@@ -10,7 +10,7 @@ module.exports = {
         if (!forward.outOfBounds() && !board.getPiece(forward)) {
             yield forward;
         }
-        if (!forwardByTwo.outOfBounds() && (y === 2 || y === 7) && !board.getPiece(forwardByTwo)) {
+        if ((y === 2 || y === 7) && !board.getPiece(forwardByTwo)) {
             yield forwardByTwo;
         }
     },
