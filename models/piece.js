@@ -26,6 +26,21 @@ class Piece {
         return moves;
     }
 
+    canCastle(type){
+        if(this.name !== 'king') return false;
+        if(this.board.isInCheck()) return false;
+        var fieldsToCheck;
+        if(type === 'big'){
+            if(!this.board.bigCastleLegal[this.color]) return false;
+            fieldsToCheck = [new Position(6,1), new Position (7,1)];
+        }
+        if(type === 'small'){
+            if(!this.board.smallCastleLegal[this.color]) return false;
+            fieldsToCheck = [new Position(4,1), new Position(3,1)];
+        }
+        return !(this.board.isFieldAttacked(fieldsToCheck[0]) || this.board.isFieldAttacked(fieldsToCheck[1]));
+    }
+
     attacking() {
         var attackingFields = [];
         for (let pos of this.strategy.attacking(this, this.board)) {

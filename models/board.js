@@ -4,6 +4,14 @@ let Piece = require('./piece');
 class Board {
     constructor() {
         this.toMove = 'white';
+        this.smallCastleLegal = {
+            white: true,
+                black: true
+        };
+        this.bigCastleLegal = {
+            white: true,
+            black: true
+        };
         this.boardMatrix = [];
         for (var j = 1; j <= 8; j++) {
             this.boardMatrix[j] = [];
@@ -67,6 +75,19 @@ class Board {
 
     move(start, end) {
         let piece = this.getPiece(start);
+
+        if(piece.name === 'king'){
+            this.bigCastleLegal[this.toMove] = false;
+            this.smallCastleLegal[this.toMove] = false;
+        }
+        if(piece.name === 'rook'){
+            if(piece.position.x === 1){
+                this.bigCastleLegal[this.toMove] = false;
+            }
+            if(piece.position.y === 8){
+                this.smallCastleLegal[this.toMove] = false;
+            }
+        }
         let piece2 = this.getPiece(end);
         if (piece) {
             if (!piece2 || piece2.color !== piece.color) {
@@ -77,9 +98,22 @@ class Board {
             }
         }
     }
+
+    castle(type){
+        if(type==='small'){
+            if(!this.smallCastleLegal[this.toMove])
+                throw 'Cannot small castle.';
+        }
+        if(type==='big') {
+            if(!this.bigCastleLegal[this.toMove])
+                throw 'Cannot big castle';
+        }
+    }
+
     toggleMove(){
         this.toMove = this.toMove === 'white' ? 'black' : 'white';
     }
+
     removePiece(position) {
         if (position.outOfBounds()) {
             throw 'Out of bounds';
@@ -158,13 +192,18 @@ class Board {
                     return {position, name, color};
                 });
             }),
-            toMove : this.toMove
+            toMove : this.toMove,
+            smallCastleLegal : this.smallCastleLegal,
+            bigCastleLegal : this.bigCastleLegal
         });
     }
+
     static fromJson(json){
         let obj = JSON.parse(json);
         let board = new Board();
         board.toMove = obj.toMove;
+        board.smallCastleLegal = obj.smallCastleLegal;
+        board.bigCastleLegal = obj.bigCastleLegal;
         for(let row of obj.boardState.filter(row => row)){
             for(let piece of row.filter(piece => piece)){
                 board.addPiece(new Position(piece.position.x, piece.position.y), new Piece(piece.name, piece.color));
