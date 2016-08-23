@@ -1,0 +1,41 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "app_name": "",
+    "version": ""
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-west-2",
+      "user_data_file": "./bootstrap-aws-user-data.txt",
+      "associate_public_ip_address": true,
+      "source_ami": "ami-2837e348",
+      "instance_type": "t2.micro",
+      "communicator": "ssh",
+      "ssh_username": "ubuntu",
+      "ami_name": "{{user `app_name`}}-{{user `version`}}",
+      "tags": {
+        "app": "${{user `app_name`}}",
+        "version": "${{user `version`}}"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./",
+      "destination": "/home/ubuntu/app"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "cd /home/ubuntu/app",
+        "npm start"
+      ]
+    }
+  ]
+}
