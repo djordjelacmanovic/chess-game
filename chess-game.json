@@ -11,7 +11,6 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "us-west-2",
-      "user_data_file": "./bootstrap-aws-user-data.txt",
       "associate_public_ip_address": true,
       "source_ami": "ami-2837e348",
       "instance_type": "t2.micro",
