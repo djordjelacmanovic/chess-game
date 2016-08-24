@@ -4,6 +4,12 @@ variable "app_name" {}
 variable "ami_name" {}
 variable "elb_name" {}
 
+provider "aws" {
+    access_key = "${var.aws_access_key}"
+    secret_key = "${var.aws_secret_key}"
+    region = "us-west-2"
+}
+
 data "aws_ami" "app_ami" {
   most_recent = true
   executable_users = ["self"]
