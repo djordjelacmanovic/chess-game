@@ -8,7 +8,8 @@ data "aws_ami" "app_ami" {
   most_recent = true
   executable_users = ["self"]
   filter {
-    name = "${var.ami_name}"
+    name = "name"
+    values = ["${var.ami_name}"]
   }
   owners = ["self"]
 }
@@ -26,7 +27,7 @@ resource "aws_autoscaling_group" "asg_app" {
   health_check_type = "ELB"
   launch_configuration = "${aws_launch_configuration.lc_app.id}"
   load_balancers = ["${var.elb_name}"]
-  # vpc_zone_identifier = ["${aws_subnet.private_az1.id}", "${aws_subnet.private_az2.id}", "${aws_subnet.private_az3.id}"]
+  availability_zones = ["us-west-2a"]
 }
 
 resource "aws_launch_configuration" "lc_app" {
