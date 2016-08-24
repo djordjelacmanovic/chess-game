@@ -18,8 +18,8 @@
       "ssh_username": "ubuntu",
       "ami_name": "{{user `app_name`}}-{{user `version`}}",
       "tags": {
-        "app": "${{user `app_name`}}",
-        "version": "${{user `version`}}"
+        "app": "{{user `app_name`}}",
+        "version": "{{user `version`}}"
       }
     }
   ],
