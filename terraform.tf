@@ -20,7 +20,7 @@ data "aws_ami" "app_ami" {
 
 resource "aws_elb" "elb_app" {
   name = "app-elb"
-  availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  availability_zones = ["us-west-2a"]
   listener {
     instance_port = 80
     instance_protocol = "http"
@@ -38,9 +38,12 @@ resource "aws_elb" "elb_app" {
 
   cross_zone_load_balancing = true
   idle_timeout = 60
-
+  connection_draining = true
+  connection_draining_timeout = 400
+  security_groups = ["sg-449a8822"]
+  subnets = ["subnet-c6da40a2"]
   tags {
-    Name = "app-elb"
+    Name = "${var.app_name}"
   }
 }
 
@@ -59,6 +62,13 @@ resource "aws_autoscaling_group" "asg_app" {
   launch_configuration = "${aws_launch_configuration.lc_app.id}"
   load_balancers = ["${aws_elb.elb_app.id}"]
   availability_zones = ["us-west-2a"]
+
+  tag {
+    key = "Name"
+    value = "${var.app_name}${count.index}"
+    propagate_at_launch = true
+  }
+
 }
 
 resource "aws_launch_configuration" "lc_app" {
