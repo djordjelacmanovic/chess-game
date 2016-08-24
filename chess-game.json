@@ -12,7 +12,7 @@
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "us-west-2",
       "associate_public_ip_address": true,
-      "source_ami": "ami-2837e348",
+      "source_ami": "ami-f869bd98",
       "instance_type": "t2.micro",
       "communicator": "ssh",
       "ssh_username": "ubuntu",
@@ -28,13 +28,6 @@
       "type": "file",
       "source": "./",
       "destination": "/home/ubuntu/app"
-    },
-    {
-      "type": "shell",
-      "inline": [
-        "cd /home/ubuntu/app",
-        "npm start"
-      ]
     }
   ]
 }
