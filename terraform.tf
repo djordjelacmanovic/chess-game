@@ -12,12 +12,10 @@ provider "aws" {
 
 data "aws_ami" "app_ami" {
   most_recent = true
-  executable_users = ["self"]
   filter {
     name = "name"
     values = ["${var.ami_name}"]
   }
-  owners = ["self"]
 }
 
 resource "aws_autoscaling_group" "asg_app" {
