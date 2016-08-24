@@ -18,6 +18,33 @@ data "aws_ami" "app_ami" {
   }
 }
 
+resource "aws_elb" "elb_app" {
+  name = "app-elb"
+  availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  listener {
+    instance_port = 80
+    instance_protocol = "http"
+    lb_port = 80
+    lb_protocol = "http"
+  }
+
+  health_check {
+    healthy_threshold = 3
+    unhealthy_threshold = 2
+    timeout = 10
+    target = "HTTP:80/"
+    interval = 30
+  }
+
+  cross_zone_load_balancing = true
+  idle_timeout = 60
+
+  tags {
+    Name = "app-elb"
+  }
+}
+
+
 resource "aws_autoscaling_group" "asg_app" {
   lifecycle { create_before_destroy = true }
 
@@ -30,7 +57,7 @@ resource "aws_autoscaling_group" "asg_app" {
   health_check_grace_period = 300
   health_check_type = "ELB"
   launch_configuration = "${aws_launch_configuration.lc_app.id}"
-  load_balancers = ["${var.elb_name}"]
+  load_balancers = ["${aws_elb.elb_app.id}"]
   availability_zones = ["us-west-2a"]
 }
 
