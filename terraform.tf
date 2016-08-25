@@ -30,6 +30,7 @@ resource "aws_cloudformation_stack" "autoscaling_group" {
         "LaunchConfigurationName": "${aws_launch_configuration.lc_app.name}",
         "MaxSize": "4",
         "MinSize": "2",
+        "HealthCheckGracePeriod" : 300,
         "LoadBalancerNames": ["${var.elb_name}"],
         "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
         "HealthCheckType": "ELB"
