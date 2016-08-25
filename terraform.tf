@@ -41,7 +41,6 @@ resource "aws_elb" "elb_app" {
   connection_draining = true
   connection_draining_timeout = 400
   security_groups = ["sg-449a8822"]
-  subnets = ["subnet-c6da40a2"]
   tags {
     Name = "${var.app_name}"
   }
