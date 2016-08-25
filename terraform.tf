@@ -18,9 +18,24 @@ data "aws_ami" "app_ami" {
   }
 }
 
+
+resource "aws_launch_configuration" "lc_app" {
+    lifecycle { create_before_destroy = true }
+    image_id = "${data.aws_ami.app_ami.id}"
+
+    instance_type = "t2.micro"
+
+    # Our Security group to allow HTTP and SSH access
+    # security_groups = ["${aws_security_group.default.id}"]
+
+    lifecycle {
+      create_before_destroy = true
+    }
+} 
+
 resource "aws_cloudformation_stack" "autoscaling_group" {
   name = "chessgameasg"
-  template_body = <<EOF
+  template_body = <<STACK
 {
   "Resources": {
     "MyAsg": {
@@ -45,20 +60,5 @@ resource "aws_cloudformation_stack" "autoscaling_group" {
     }
   }
 }
-EOF
-}
-
-resource "aws_launch_configuration" "lc_app" {
-    lifecycle { create_before_destroy = true }
-    name = "${var.app_name}"
-    image_id = "${data.aws_ami.app_ami.id}"
-
-    instance_type = "t2.micro"
-
-    # Our Security group to allow HTTP and SSH access
-    # security_groups = ["${aws_security_group.default.id}"]
-
-    lifecycle {
-      create_before_destroy = true
-    }
-}  
+STACK
+} 
