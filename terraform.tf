@@ -19,7 +19,7 @@ data "aws_ami" "app_ami" {
 }
 
 resource "aws_cloudformation_stack" "autoscaling_group" {
-  name = "my-asg"
+  name = "chessgameasg"
   template_body = <<EOF
 {
   "Resources": {
@@ -50,7 +50,7 @@ EOF
 
 resource "aws_launch_configuration" "lc_app" {
     lifecycle { create_before_destroy = true }
-
+    name = "${var.app_name}"
     image_id = "${data.aws_ami.app_ami.id}"
 
     instance_type = "t2.micro"
