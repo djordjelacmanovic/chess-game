@@ -18,56 +18,33 @@ data "aws_ami" "app_ami" {
   }
 }
 
-resource "aws_elb" "elb_app" {
-  name = "app-elb"
-  availability_zones = ["us-west-2a"]
-  listener {
-    instance_port = 80
-    instance_protocol = "http"
-    lb_port = 80
-    lb_protocol = "http"
-  }
-
-  health_check {
-    healthy_threshold = 3
-    unhealthy_threshold = 2
-    timeout = 10
-    target = "HTTP:80/"
-    interval = 30
-  }
-
-  cross_zone_load_balancing = true
-  idle_timeout = 60
-  connection_draining = true
-  connection_draining_timeout = 400
-  security_groups = ["sg-449a8822"]
-  tags {
-    Name = "${var.app_name}"
+resource "aws_cloudformation_stack" "autoscaling_group" {
+  name = "my-asg"
+  template_body = <<EOF
+{
+  "Resources": {
+    "MyAsg": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": ["us-west-2a", "us-west-2b", "us-west-2c"],
+        "LaunchConfigurationName": "${aws_launch_configuration.lc_app.name}",
+        "MaxSize": "4",
+        "MinSize": "2",
+        "LoadBalancerNames": ["${var.elb_name}"],
+        "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
+        "HealthCheckType": "ELB"
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "2",
+          "MaxBatchSize": "2",
+          "PauseTime": "PT0S"
+        }
+      }
+    }
   }
 }
-
-
-resource "aws_autoscaling_group" "asg_app" {
-  lifecycle { create_before_destroy = true }
-
-  # interpolate the LC into the ASG name so it always forces an update
-  name = "asg-app - ${aws_launch_configuration.lc_app.name}"
-  max_size = 5
-  min_size = 2
-  wait_for_elb_capacity = 2
-  desired_capacity = 2
-  health_check_grace_period = 300
-  health_check_type = "ELB"
-  launch_configuration = "${aws_launch_configuration.lc_app.id}"
-  load_balancers = ["${aws_elb.elb_app.id}"]
-  availability_zones = ["us-west-2a"]
-
-  tag {
-    key = "Name"
-    value = "${var.app_name}${count.index}"
-    propagate_at_launch = true
-  }
-
+EOF
 }
 
 resource "aws_launch_configuration" "lc_app" {
