@@ -18,13 +18,37 @@ data "aws_ami" "app_ami" {
   }
 }
 
+resource "aws_security_group" "redis_security" {
+  name = "redis_security"
+  description = "Allow inbound redis"
+
+  ingress {
+      from_port = 6379
+      to_port = 6379
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "allow redis"
+  }
+}
+
+resource "aws_instance" "redis" {
+  ami = "ami-afc116cf"
+  instance_type = "t2.micro"
+  vpc_security_group_ids = ["${aws_security_group.redis_security.id}"]
+  tags {
+    Name = "${var.app_name}-redis"
+  }
+}
 
 resource "aws_launch_configuration" "lc_app" {
     lifecycle { create_before_destroy = true }
     image_id = "${data.aws_ami.app_ami.id}"
 
     instance_type = "t2.micro"
-
+    user_data = "export REDIS_URL=redis://${aws_instance.redis.public_dns}:6379"
     # Our Security group to allow HTTP and SSH access
     # security_groups = ["${aws_security_group.default.id}"]
 
