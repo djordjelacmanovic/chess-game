@@ -56,6 +56,10 @@ resource "aws_launch_configuration" "lc_app" {
     lifecycle {
       create_before_destroy = true
     }
+    tags {
+      Name = "${var.ami_name}",
+      app = "${var.app_name}"
+    }
 } 
 
 resource "aws_cloudformation_stack" "autoscaling_group" {
