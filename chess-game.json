@@ -12,7 +12,7 @@
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "us-west-2",
       "associate_public_ip_address": true,
-      "source_ami": "ami-8bc81feb",
+      "source_ami": "ami-7af4231a",
       "instance_type": "t2.micro",
       "communicator": "ssh",
       "ssh_username": "ubuntu",
