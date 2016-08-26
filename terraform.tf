@@ -47,7 +47,7 @@ resource "aws_launch_configuration" "lc_app" {
     lifecycle { create_before_destroy = true }
     image_id = "${data.aws_ami.app_ami.id}"
 
-    user_data = "#!/bin/bash\necho REDIS_URL=redis://${aws_instance.redis.public_dns}:6379 > /home/ubuntu/app/.env"
+    user_data = "#!/bin/bash\necho REDIS_URL=redis://${aws_instance.redis.public_dns}:6379 > /home/ubuntu/app/.env && sudo restart node-app"
 
     instance_type = "t2.micro"
     # Our Security group to allow HTTP and SSH access
