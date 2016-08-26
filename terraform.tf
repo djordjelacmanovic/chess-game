@@ -56,10 +56,40 @@ resource "aws_launch_configuration" "lc_app" {
     lifecycle {
       create_before_destroy = true
     }
+}
+
+resource "aws_alb_target_group" "app_group" {
+  name = "chess-game-alb-tg"
+  port = 80
+  protocol = "HTTP"
+  vpc_id = "vpc-52751936"
+}
+
+resource "aws_alb" "djordje-chess" {
+  name            = "djordje-chess"
+  internal        = false
+  subnets         = ["subnet-c6da40a2","subnet-112d9f67","subnet-0bb17653"]
+
+  enable_deletion_protection = true
+
+  tags {
+    Environment = "production"
+  }
+}
+
+resource "aws_alb_listener" "app_listener" {
+   load_balancer_arn = "${aws_alb.djordje-chess.arn}"
+   port = "80"
+   protocol = "HTTP"
+
+   default_action {
+     target_group_arn = "${aws_alb_target_group.app_group.arn}"
+     type = "forward"
+   }
 } 
 
-resource "aws_cloudformation_stack" "autoscaling_group" {
-  name = "chessgameasg"
+resource "aws_cloudformation_stack" "new_autoscaling_group" {
+  name = "newchessgameasg"
   template_body = <<STACK
 {
   "Resources": {
@@ -71,7 +101,7 @@ resource "aws_cloudformation_stack" "autoscaling_group" {
         "MaxSize": "4",
         "MinSize": "2",
         "HealthCheckGracePeriod" : 300,
-        "LoadBalancerNames": ["${var.elb_name}"],
+        "TargetGroupARNs" : ["${aws_alb_target_group.app_group.arn}"],
         "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
         "HealthCheckType": "ELB"
       },
