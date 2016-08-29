@@ -103,7 +103,19 @@ resource "aws_cloudformation_stack" "new_autoscaling_group" {
         "HealthCheckGracePeriod" : 300,
         "TargetGroupARNs" : ["${aws_alb_target_group.app_group.arn}"],
         "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
-        "HealthCheckType": "ELB"
+        "HealthCheckType": "ELB",
+        "Tags" : [
+            {
+              "Key" : "Name",
+              "Value" : "${var.app_name}",
+              "PropagateAtLaunch" : true
+            },
+            {
+              "Key" : "app",
+              "Value" : "${var.app_name}"
+              "PropagateAtLaunch" : true
+            }
+        ]
       },
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
