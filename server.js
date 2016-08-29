@@ -13,8 +13,22 @@ client.on("error", function (err) {
 
 client.flushall();
 
+var pub = client.duplicate();
+
+var sub = client.duplicate();
+
+sub.on('subscribe', function(channel){
+   console.log('Subscribed to #'+channel);
+});
+
+sub.subscribe('socket.io');
+
+sub.on('message', function(channel, message){
+   let {recipient, messageType, payload} = JSON.parse(message);
+    io.to(recipient).emit(messageType, payload);
+});
+
 let Board = require('./models/board');
-let Position = require('./models/position');
 let Game = require('./models/game');
 
 let Notation = require('./utils/notation');
@@ -74,21 +88,37 @@ io.on('connection', function (socket) {
                         console.log(err);
                     console.log(res);
                 });
-                io.to(other).emit('move', move);
+                publish({
+                   recipient: other,
+                    messageType: 'move',
+                    payload: move
+                });
 
                 if(game.board.isCheckMate()){
-                    io.to(other).emit('checkmate', game.board.toMove);
+                    publish({
+                        recipient: other,
+                        messageType: 'checkmate',
+                        payload: game.board.toMove
+                    });
                     return socket.emit('checkmate', game.board.toMove);
                 }
                 if(isChecked){
                     if(!game.board.isInCheck(toMove)){
-                        io.to(other).emit('uncheck', kingPosition);
+                        publish({
+                            recipient: other,
+                            messageType: 'uncheck',
+                            payload: kingPosition
+                        });
                         socket.emit('uncheck', kingPosition);
                     }
                 }
                 if(game.board.isInCheck()){
                     let kingPosition = game.board.findKing(game.board.toMove).position.getNotation();
-                    io.to(other).emit('check', kingPosition);
+                    publish({
+                        recipient: other,
+                        messageType: 'check',
+                        payload: kingPosition
+                    });
                     socket.emit('check', kingPosition);
                 }
             })
@@ -126,7 +156,11 @@ function registerNewPlayer(socket) {
         }
         console.log('Paired ' +socket.id + ' with ' + result);
         socket.emit('paired', 'black');
-        io.to(result).emit('paired','white');
+        publish({
+            recipient: result,
+            messageType: 'paired',
+            payload: 'white'
+        });
         client.srem('users_waiting', result);
         let gameId = guid.v4();
         console.log(gameId);
@@ -141,6 +175,10 @@ function registerNewPlayer(socket) {
             console.log(result);
         });
     });
+}
+
+function publish(payload, channel){
+    pub.publish(channel || 'socket.io', JSON.stringify(payload));
 }
 
 http.listen(process.env.PORT, function () {
