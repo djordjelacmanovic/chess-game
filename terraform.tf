@@ -112,7 +112,7 @@ resource "aws_cloudformation_stack" "new_autoscaling_group" {
             },
             {
               "Key" : "app",
-              "Value" : "${var.app_name}"
+              "Value" : "${var.app_name}",
               "PropagateAtLaunch" : true
             }
         ]
