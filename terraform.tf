@@ -35,7 +35,7 @@ resource "aws_security_group" "redis_security" {
 }
 
 resource "aws_instance" "redis" {
-  ami = "ami-afc116cf"
+  ami = "ami-92ac7cf2"
   instance_type = "t2.micro"
   vpc_security_group_ids = ["${aws_security_group.redis_security.id}"]
   tags {
